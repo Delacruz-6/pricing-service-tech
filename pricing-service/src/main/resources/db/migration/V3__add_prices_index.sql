@@ -1,0 +1,1 @@
+CREATE INDEX idx_prices_lookup ON PRICES (brand_id, product_id, start_date, end_date);
