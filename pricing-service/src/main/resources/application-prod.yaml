@@ -1,0 +1,11 @@
+app:
+  server-url: https://api.inditex.com/pricing
+
+spring:
+  h2:
+    console:
+      enabled: false
+
+logging:
+  level:
+    com.inditex.ecommerce.pricing: INFO
