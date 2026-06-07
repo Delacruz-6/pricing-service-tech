@@ -91,6 +91,46 @@ Perfil activo por defecto: `local` (puerto 8080).
 
 ---
 
+## Colección API (Postman)
+
+En la raíz del repositorio está `pricing-service-tech-collection.json`, una colección Postman con el endpoint `GET /api/prices` y ejemplos de respuesta (200, 400, 404 y 500).
+
+### Importar
+
+1. Abre Postman.
+2. **Import** → arrastra o selecciona `pricing-service-tech-collection.json`.
+3. La colección se llama **PRICING-SERVICE**.
+
+### Configurar
+
+La colección define la variable `baseUrl` con valor `http://localhost:8080`. Si el servicio corre en otro host o puerto, edítala en la pestaña **Variables** de la colección.
+
+### Ejecutar
+
+1. Arranca el servicio (ver [Arranque](#arranque)).
+2. Abre la petición **api → prices → Obtener precio aplicable**.
+3. Pulsa **Send**.
+
+Parámetros por defecto de la petición:
+
+| Parámetro | Valor | Descripción |
+|-----------|-------|-------------|
+| `applicationDate` | `2020-06-14T10:00:00` | Fecha y hora en ISO 8601 |
+| `productId` | `35455` | ID del producto |
+| `brandId` | `1` | ID de la cadena (1 = ZARA) |
+
+Para reproducir los cinco casos del enunciado, cambia `applicationDate` a:
+
+- `2020-06-14T10:00:00` → precio 35.50 (lista 1)
+- `2020-06-14T16:00:00` → precio 25.45 (lista 2)
+- `2020-06-14T21:00:00` → precio 35.50 (lista 1)
+- `2020-06-15T10:00:00` → precio 30.50 (lista 3)
+- `2020-06-16T21:00:00` → precio 38.95 (lista 4)
+
+También puedes usar **Collection Runner** para lanzar la petición varias veces con distintos valores de query.
+
+---
+
 ## Tests
 
 ```bash
