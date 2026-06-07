@@ -1,29 +1,103 @@
 # Pricing Service
 
-Prueba técnica Inditex — servicio REST de consulta de precios aplicables.
+Servicio REST que devuelve el precio aplicable a un producto para una cadena y fecha concretas. Si hay varias tarifas vigentes a la vez, se devuelve la de mayor prioridad.
 
-## Enunciado
+Prueba técnica Inditex — implementación con arquitectura hexagonal.
 
-Dado un producto, una cadena y una fecha de aplicación, el servicio debe devolver el precio aplicable en ese momento. Si existen varias tarifas vigentes, se devuelve la de mayor prioridad.
+---
 
-### Endpoint
+## Stack
+
+Java 25 · Spring Boot 4 · Spring Data JPA · H2 · Flyway · MapStruct · Lombok · Springdoc OpenAPI · Actuator
+
+---
+
+## Arquitectura
+
+Hexagonal (Ports & Adapters). El dominio y los casos de uso no dependen de Spring ni de JPA; la infraestructura implementa los puertos.
+
+```
+com.inditex.ecommerce.pricing
+├── domain/              → Price, DomainValidationException
+├── application/         → GetApplicablePriceUseCase, PriceRepositoryPort, mappers
+└── infrastructure/
+    ├── in/rest/         → PriceController, DTOs
+    ├── out/             → PricePersistenceAdapter, JPA, entidades
+    ├── aop/             → LoggingAspect (trazas de entrada/salida)
+    ├── config/          → Swagger
+    └── exception/       → GlobalExceptionHandler
+```
+
+### Decisiones de diseño
+
+- **Flyway** para versionar el esquema (`V1` schema, `V2` datos, `V3` índice compuesto). Me pareció más limpio que un `import.sql` suelto si el servicio crece.
+- **Puerto `PriceRepositoryPort`** para que el caso de uso no conozca JPA. El adaptador traduce entidades ↔ dominio con MapStruct.
+- **`PageRequest.of(0, 1)`** en la query: JPQL no admite `LIMIT 1` de forma portable; ordeno por `priority DESC` y pido solo el primero.
+- **Tests por capa**: unitarios del use case, MockMvc del controlador y repositorio contra H2. Los cinco escenarios del enunciado están cubiertos en integración.
+- **Perfiles** `local` / `dev` / `prod` solo para la URL base de Swagger; la lógica es la misma en todos.
+
+---
+
+## Endpoint
 
 ```
 GET /api/prices?applicationDate=2020-06-14T16:00:00&productId=35455&brandId=1
 ```
 
-### Casos de prueba (producto 35455, cadena 1)
+Respuesta `200`:
 
-| Fecha aplicación       | Tarifa esperada | Precio  |
-|------------------------|-----------------|---------|
-| 2020-06-14T10:00:00    | 1               | 35.50   |
-| 2020-06-14T16:00:00    | 2               | 25.45   |
-| 2020-06-14T21:00:00    | 1               | 35.50   |
-| 2020-06-15T10:00:00    | 3               | 30.50   |
-| 2020-06-16T21:00:00    | 4               | 38.95   |
+```json
+{
+  "productId": 35455,
+  "brandId": 1,
+  "priceList": 2,
+  "startDate": "2020-06-14T15:00:00",
+  "endDate": "2020-06-14T18:30:00",
+  "price": 25.45,
+  "currency": "EUR"
+}
+```
 
-## Requisitos
+Sin tarifa aplicable → `404` con cuerpo estructurado (`ErrorResponse`).
 
-- Java 25, Spring Boot
-- Base de datos H2 en memoria
-- Tests unitarios e integración
+---
+
+## Base de datos
+
+H2 en memoria, inicializada con migraciones Flyway en `src/main/resources/db/migration/`:
+
+| Migración | Contenido |
+|-----------|-----------|
+| `V1__init_schema.sql` | Tabla `PRICES` |
+| `V2__init_data.sql` | Datos del enunciado |
+| `V3__add_prices_index.sql` | Índice `(brand_id, product_id, start_date, end_date)` |
+
+- **JDBC URL:** `jdbc:h2:mem:pricedb`
+- **Consola H2:** `http://localhost:8080/h2-console` (usuario `sa`, sin contraseña)
+- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+
+---
+
+## Arranque
+
+Requisito: JDK 25.
+
+```bash
+cd pricing-service
+mvn spring-boot:run
+```
+
+Perfil activo por defecto: `local` (puerto 8080).
+
+---
+
+## Tests
+
+```bash
+cd pricing-service
+mvn test
+```
+
+En test se desactiva Flyway y se usa `data.sql` con `ddl-auto: create-drop` para aislar cada ejecución.
+
+Cubre los cinco casos del enunciado (14, 15 y 16 de junio de 2020, producto 35455) más escenarios negativos (404, parámetros inválidos).
