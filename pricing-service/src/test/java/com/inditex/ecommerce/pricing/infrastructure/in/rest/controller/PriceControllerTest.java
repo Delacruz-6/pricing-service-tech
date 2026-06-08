@@ -4,12 +4,14 @@ import com.inditex.ecommerce.pricing.application.exception.PriceNotFoundExceptio
 import com.inditex.ecommerce.pricing.application.mapper.PriceMapper;
 import com.inditex.ecommerce.pricing.application.usecase.GetApplicablePriceUseCase;
 import com.inditex.ecommerce.pricing.domain.model.Price;
+import com.inditex.ecommerce.pricing.infrastructure.exception.GlobalExceptionHandler;
 import com.inditex.ecommerce.pricing.infrastructure.in.rest.dto.PriceResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PriceController.class)
+@Import(GlobalExceptionHandler.class)
 @DisplayName("PriceController - unitarios")
 class PriceControllerTest {
 
