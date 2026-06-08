@@ -1,14 +1,16 @@
 package com.inditex.ecommerce.pricing.infrastructure.aop;
 
+import com.inditex.ecommerce.pricing.application.exception.PriceNotFoundException;
+import com.inditex.ecommerce.pricing.domain.exception.DomainValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 @Aspect
 @Component
@@ -24,41 +26,39 @@ public class LoggingAspect {
     @Pointcut("execution(* com.inditex.ecommerce.pricing.infrastructure.out.adapter..*(..))")
     public void persistenceLayer() {}
 
-    @Around("applicationLayer() || restLayer() || persistenceLayer()")
-    public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        String className = joinPoint.getSignature().getDeclaringTypeName();
-        String methodName = joinPoint.getSignature().getName();
-        String shortClass = className.substring(className.lastIndexOf('.') + 1);
+    @Pointcut("within(com.inditex.ecommerce.pricing.application.mapper..*)"
+            + " || within(com.inditex.ecommerce.pricing.infrastructure.out.persistence.mapper..*)")
+    public void mapperLayer() {}
 
-        if (log.isDebugEnabled()) {
-            log.debug("[{}] invocando {}({})", shortClass, methodName, formatArgs(joinPoint.getArgs()));
-        }
+    @Around("(applicationLayer() || restLayer() || persistenceLayer()) && !mapperLayer()")
+    public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Object[] args = joinPoint.getArgs();
 
         long start = System.nanoTime();
         try {
             Object result = joinPoint.proceed();
             long elapsed = (System.nanoTime() - start) / 1_000_000;
             if (log.isDebugEnabled()) {
-                log.debug("[{}] finalizado {}() | {}ms | resultado: {}", shortClass, methodName, elapsed, formatResult(result));
+                log.debug(InvocationLogFormatter.formatInvocation(signature, args, elapsed, result));
             }
             return result;
         } catch (Throwable ex) {
             long elapsed = (System.nanoTime() - start) / 1_000_000;
-            log.error("[{}] error en {}() | {}ms | {}", shortClass, methodName, elapsed, ex.getMessage());
+            String formatted = InvocationLogFormatter.formatError(signature, args, elapsed, ex.getMessage());
+            if (isExpectedFailure(ex)) {
+                log.debug(formatted);
+            } else {
+                log.error(formatted);
+            }
             throw ex;
         }
     }
 
-    private String formatArgs(Object[] args) {
-        if (args == null || args.length == 0) return "";
-        return Arrays.stream(args)
-                .map(arg -> arg == null ? "null" : arg.toString())
-                .collect(Collectors.joining(", "));
-    }
-
-    private String formatResult(Object result) {
-        if (result == null) return "null";
-        String str = result.toString();
-        return str.length() > 200 ? str.substring(0, 200) + "..." : str;
+    private static boolean isExpectedFailure(Throwable ex) {
+        return ex instanceof PriceNotFoundException
+                || ex instanceof DomainValidationException
+                || ex instanceof MissingServletRequestParameterException
+                || ex instanceof MethodArgumentTypeMismatchException;
     }
 }
