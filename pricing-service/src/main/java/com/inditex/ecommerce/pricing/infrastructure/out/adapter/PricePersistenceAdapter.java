@@ -24,4 +24,14 @@ public class PricePersistenceAdapter implements PriceRepositoryPort {
         return repository.findTopApplicablePrice(brandId, productId, applicationDate, PageRequest.of(0, 1))
                 .stream().findFirst().map(mapper::toDomain);
     }
+
+    @Override
+    public boolean existsByBrandId(Long brandId) {
+        return repository.existsByBrandId(brandId);
+    }
+
+    @Override
+    public boolean existsByBrandIdAndProductId(Long brandId, Long productId) {
+        return repository.existsByBrandIdAndProductId(brandId, productId);
+    }
 }

@@ -24,28 +24,24 @@ public record PriceResponse(
 
         @Schema(
                 description = "Identificador de la tarifa o lista de precios aplicable",
-                example = "1",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
         Integer priceList,
 
         @Schema(
                 description = "Fecha y hora de inicio de vigencia del precio",
-                example = "2020-06-14T00:00:00",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
         LocalDateTime startDate,
 
         @Schema(
                 description = "Fecha y hora de fin de vigencia del precio",
-                example = "2020-12-31T23:59:59",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
         LocalDateTime endDate,
 
         @Schema(
                 description = "Precio final aplicable al producto",
-                example = "35.50",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
         BigDecimal price,

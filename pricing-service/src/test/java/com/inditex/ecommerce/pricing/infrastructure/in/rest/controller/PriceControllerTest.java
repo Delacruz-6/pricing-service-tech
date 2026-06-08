@@ -180,7 +180,7 @@ class PriceControllerTest {
         void sinPrecio_devuelve404() throws Exception {
             var fecha = LocalDateTime.of(2020, 6, 14, 10, 0);
             when(useCase.execute(eq(ID_CADENA), eq(ID_PRODUCTO), eq(fecha)))
-                    .thenThrow(new PriceNotFoundException(ID_CADENA, ID_PRODUCTO, fecha));
+                    .thenThrow(PriceNotFoundException.noPriceForDate(ID_CADENA, ID_PRODUCTO, fecha));
 
             mockMvc.perform(get("/api/prices")
                             .param("applicationDate", "2020-06-14T10:00:00")
