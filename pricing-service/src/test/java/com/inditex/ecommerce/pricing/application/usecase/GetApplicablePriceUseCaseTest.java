@@ -137,18 +137,47 @@ class GetApplicablePriceUseCaseTest {
     class SinPrecio {
 
         @Test
-        @DisplayName("Lanza PriceNotFoundException")
+        @DisplayName("Lanza PriceNotFoundException si la fecha no tiene tarifa")
         void lanzaExcepcion() {
-            var fecha = LocalDateTime.of(2020, 6, 14, 10, 0);
+            var fecha = LocalDateTime.of(2020, 1, 1, 0, 0);
             when(repository.findApplicablePrice(ID_CADENA, ID_PRODUCTO, fecha))
                     .thenReturn(Optional.empty());
+            when(repository.existsByBrandId(ID_CADENA)).thenReturn(true);
+            when(repository.existsByBrandIdAndProductId(ID_CADENA, ID_PRODUCTO)).thenReturn(true);
 
             assertThatThrownBy(() -> useCase.execute(ID_CADENA, ID_PRODUCTO, fecha))
                     .isInstanceOf(PriceNotFoundException.class)
-                    .hasMessageContaining("brandId=1")
-                    .hasMessageContaining("productId=35455");
+                    .hasMessageContaining("No hay precio aplicable para la fecha indicada");
             verify(repository).findApplicablePrice(ID_CADENA, ID_PRODUCTO, fecha);
-            verifyNoMoreInteractions(repository);
+            verify(repository).existsByBrandId(ID_CADENA);
+            verify(repository).existsByBrandIdAndProductId(ID_CADENA, ID_PRODUCTO);
+        }
+
+        @Test
+        @DisplayName("Lanza PriceNotFoundException si la cadena no existe")
+        void cadenaInexistente() {
+            var fecha = LocalDateTime.of(2020, 6, 14, 10, 0);
+            when(repository.findApplicablePrice(999L, ID_PRODUCTO, fecha))
+                    .thenReturn(Optional.empty());
+            when(repository.existsByBrandId(999L)).thenReturn(false);
+
+            assertThatThrownBy(() -> useCase.execute(999L, ID_PRODUCTO, fecha))
+                    .isInstanceOf(PriceNotFoundException.class)
+                    .hasMessage("Cadena inexistente: brandId=999");
+        }
+
+        @Test
+        @DisplayName("Lanza PriceNotFoundException si el producto no existe")
+        void productoInexistente() {
+            var fecha = LocalDateTime.of(2020, 6, 14, 10, 0);
+            when(repository.findApplicablePrice(ID_CADENA, 99999L, fecha))
+                    .thenReturn(Optional.empty());
+            when(repository.existsByBrandId(ID_CADENA)).thenReturn(true);
+            when(repository.existsByBrandIdAndProductId(ID_CADENA, 99999L)).thenReturn(false);
+
+            assertThatThrownBy(() -> useCase.execute(ID_CADENA, 99999L, fecha))
+                    .isInstanceOf(PriceNotFoundException.class)
+                    .hasMessage("Producto inexistente: productId=99999 para brandId=1");
         }
     }
 
@@ -159,15 +188,18 @@ class GetApplicablePriceUseCaseTest {
         @Test
         @DisplayName("Pasa los parámetros tal cual al puerto")
         void delegaAlrepository() {
-            var fecha = LocalDateTime.of(2020, 6, 14, 10, 0);
+            var fecha = LocalDateTime.of(2020, 1, 1, 0, 0);
             when(repository.findApplicablePrice(ID_CADENA, ID_PRODUCTO, fecha))
                     .thenReturn(Optional.empty());
+            when(repository.existsByBrandId(ID_CADENA)).thenReturn(true);
+            when(repository.existsByBrandIdAndProductId(ID_CADENA, ID_PRODUCTO)).thenReturn(true);
 
             assertThatThrownBy(() -> useCase.execute(ID_CADENA, ID_PRODUCTO, fecha))
                     .isInstanceOf(PriceNotFoundException.class);
 
             verify(repository).findApplicablePrice(ID_CADENA, ID_PRODUCTO, fecha);
-            verifyNoMoreInteractions(repository);
+            verify(repository).existsByBrandId(ID_CADENA);
+            verify(repository).existsByBrandIdAndProductId(ID_CADENA, ID_PRODUCTO);
         }
     }
 }

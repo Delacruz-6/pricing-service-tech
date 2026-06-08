@@ -13,7 +13,7 @@ public record ErrorResponse(
         @Schema(description = "Tipo de error HTTP", example = "Not Found")
         String error,
 
-        @Schema(description = "Mensaje descriptivo del error", example = "No se encontro precio aplicable para brandId=1, productId=35455, applicationDate=2020-01-01T00:00")
+        @Schema(description = "Mensaje descriptivo del error", example = "No hay precio aplicable para la fecha indicada: brandId=1, productId=35455, applicationDate=2020-01-01T00:00")
         String message,
 
         @Schema(description = "Fecha y hora en que se produjo el error")

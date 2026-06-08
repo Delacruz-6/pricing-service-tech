@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface PriceRepository extends JpaRepository<PriceEntity, Long> {
 
-    // El indice idx_prices_lookup (V3) cubre brandId + productId + rango de fechas
     @Query("""
         SELECT p FROM PriceEntity p
         WHERE p.brandId = :brandId
@@ -25,4 +24,8 @@ public interface PriceRepository extends JpaRepository<PriceEntity, Long> {
             @Param("applicationDate") LocalDateTime applicationDate,
             Pageable pageable
     );
+
+    boolean existsByBrandId(Long brandId);
+
+    boolean existsByBrandIdAndProductId(Long brandId, Long productId);
 }
