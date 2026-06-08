@@ -74,7 +74,6 @@ H2 en memoria, inicializada con migraciones Flyway en `src/main/resources/db/mig
 
 - **JDBC URL:** `jdbc:h2:mem:pricedb`
 - **Consola H2:** `http://localhost:8080/h2-console` (usuario `sa`, sin contraseña)
-- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
 
 ---
 
@@ -91,43 +90,37 @@ Perfil activo por defecto: `local` (puerto 8080).
 
 ---
 
-## Colección API (Postman)
+## Colección API
 
-En la raíz del repositorio está `pricing-service-tech-collection.json`, una colección Postman con el endpoint `GET /api/prices` y ejemplos de respuesta (200, 400, 404 y 500).
+Con el servicio en marcha, la colección está disponible en:
+
+```
+http://localhost:8080/pricing-service-tech-collection.json
+```
+
+El fichero fuente vive en `pricing-service/src/main/resources/static/pricing-service-tech-collection.json` e incluye los cinco casos del enunciado y los escenarios de error (400 y 404).
 
 ### Importar
 
-1. Abre Postman.
-2. **Import** → arrastra o selecciona `pricing-service-tech-collection.json`.
-3. La colección se llama **PRICING-SERVICE**.
+1. Arranca el servicio (ver [Arranque](#arranque)).
+2. En Postman o Bruno: **Import** → pega la URL anterior o importa el fichero del proyecto.
+3. La colección se llama **PRICING-SERVICE - Casos de prueba**.
+
+### Estructura
+
+| Carpeta | Contenido |
+|---------|-----------|
+| **Casos exitosos (enunciado)** | Tests 1–5 con la fecha y el precio esperado |
+| **Casos de error** | Producto/cadena inexistente, fecha sin precio, parámetros inválidos |
 
 ### Configurar
 
-La colección define la variable `baseUrl` con valor `http://localhost:8080`. Si el servicio corre en otro host o puerto, edítala en la pestaña **Variables** de la colección.
+La colección define `baseUrl = http://localhost:8080`. Cámbiala en **Variables** si usas otro host o puerto.
 
-### Ejecutar
+### Documentación OpenAPI
 
-1. Arranca el servicio (ver [Arranque](#arranque)).
-2. Abre la petición **api → prices → Obtener precio aplicable**.
-3. Pulsa **Send**.
-
-Parámetros por defecto de la petición:
-
-| Parámetro | Valor | Descripción |
-|-----------|-------|-------------|
-| `applicationDate` | `2020-06-14T10:00:00` | Fecha y hora en ISO 8601 |
-| `productId` | `35455` | ID del producto |
-| `brandId` | `1` | ID de la cadena (1 = ZARA) |
-
-Para reproducir los cinco casos del enunciado, cambia `applicationDate` a:
-
-- `2020-06-14T10:00:00` → precio 35.50 (lista 1)
-- `2020-06-14T16:00:00` → precio 25.45 (lista 2)
-- `2020-06-14T21:00:00` → precio 35.50 (lista 1)
-- `2020-06-15T10:00:00` → precio 30.50 (lista 3)
-- `2020-06-16T21:00:00` → precio 38.95 (lista 4)
-
-También puedes usar **Collection Runner** para lanzar la petición varias veces con distintos valores de query.
+- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- **OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
 
 ---
 
