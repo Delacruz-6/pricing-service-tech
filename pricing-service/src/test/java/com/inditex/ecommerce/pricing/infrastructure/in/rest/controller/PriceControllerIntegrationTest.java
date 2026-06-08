@@ -113,7 +113,8 @@ class PriceControllerIntegrationTest {
                             .param("brandId", CADENA_ZARA))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.status").value(404))
-                    .andExpect(jsonPath("$.error").value("Not Found"));
+                    .andExpect(jsonPath("$.error").value("Not Found"))
+                    .andExpect(jsonPath("$.message").value("Producto inexistente: productId=99999 para brandId=1"));
         }
 
         @Test
@@ -142,7 +143,20 @@ class PriceControllerIntegrationTest {
                             .param("applicationDate", "2020-06-14T10:00:00")
                             .param("productId", PRODUCTO)
                             .param("brandId", "999"))
-                    .andExpect(status().isNotFound());
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("Cadena inexistente: brandId=999"));
+        }
+
+        @Test
+        @DisplayName("404 si la fecha no tiene precio aplicable")
+        void fechaSinPrecio_devuelve404() throws Exception {
+            mockMvc.perform(get(ENDPOINT)
+                            .param("applicationDate", "2020-01-01T00:00:00")
+                            .param("productId", PRODUCTO)
+                            .param("brandId", CADENA_ZARA))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value(
+                            "No hay precio aplicable para la fecha indicada: brandId=1, productId=35455, applicationDate=2020-01-01T00:00"));
         }
     }
 }
