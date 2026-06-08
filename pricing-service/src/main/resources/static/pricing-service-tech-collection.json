@@ -1,0 +1,181 @@
+{
+  "info": {
+    "name": "PRICING-SERVICE - Casos de prueba",
+    "description": "Casos del enunciado tecnico y escenarios de error de la API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Casos exitosos (enunciado)",
+      "item": [
+        {
+          "name": "Test 1 - 14/06 10:00 (tarifa 1, 35.50 EUR)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/prices?applicationDate=2020-06-14T10:00:00&productId=35455&brandId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prices"],
+              "query": [
+                {"key": "applicationDate", "value": "2020-06-14T10:00:00"},
+                {"key": "productId", "value": "35455"},
+                {"key": "brandId", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test 2 - 14/06 16:00 (tarifa 2, 25.45 EUR)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/prices?applicationDate=2020-06-14T16:00:00&productId=35455&brandId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prices"],
+              "query": [
+                {"key": "applicationDate", "value": "2020-06-14T16:00:00"},
+                {"key": "productId", "value": "35455"},
+                {"key": "brandId", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test 3 - 14/06 21:00 (tarifa 1, 35.50 EUR)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/prices?applicationDate=2020-06-14T21:00:00&productId=35455&brandId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prices"],
+              "query": [
+                {"key": "applicationDate", "value": "2020-06-14T21:00:00"},
+                {"key": "productId", "value": "35455"},
+                {"key": "brandId", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test 4 - 15/06 10:00 (tarifa 3, 30.50 EUR)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/prices?applicationDate=2020-06-15T10:00:00&productId=35455&brandId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prices"],
+              "query": [
+                {"key": "applicationDate", "value": "2020-06-15T10:00:00"},
+                {"key": "productId", "value": "35455"},
+                {"key": "brandId", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test 5 - 16/06 21:00 (tarifa 4, 38.95 EUR)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/prices?applicationDate=2020-06-16T21:00:00&productId=35455&brandId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prices"],
+              "query": [
+                {"key": "applicationDate", "value": "2020-06-16T21:00:00"},
+                {"key": "productId", "value": "35455"},
+                {"key": "brandId", "value": "1"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Casos de error",
+      "item": [
+        {
+          "name": "404 - Producto inexistente",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/prices?applicationDate=2020-06-14T10:00:00&productId=99999&brandId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prices"],
+              "query": [
+                {"key": "applicationDate", "value": "2020-06-14T10:00:00"},
+                {"key": "productId", "value": "99999"},
+                {"key": "brandId", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "404 - Cadena inexistente",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/prices?applicationDate=2020-06-14T10:00:00&productId=35455&brandId=999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prices"],
+              "query": [
+                {"key": "applicationDate", "value": "2020-06-14T10:00:00"},
+                {"key": "productId", "value": "35455"},
+                {"key": "brandId", "value": "999"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "404 - Fecha sin precio aplicable",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/prices?applicationDate=2020-01-01T00:00:00&productId=35455&brandId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prices"],
+              "query": [
+                {"key": "applicationDate", "value": "2020-01-01T00:00:00"},
+                {"key": "productId", "value": "35455"},
+                {"key": "brandId", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Fecha ausente",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/prices?productId=35455&brandId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prices"],
+              "query": [
+                {"key": "productId", "value": "35455"},
+                {"key": "brandId", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Fecha invalida",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/prices?applicationDate=no-es-una-fecha&productId=35455&brandId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prices"],
+              "query": [
+                {"key": "applicationDate", "value": "no-es-una-fecha"},
+                {"key": "productId", "value": "35455"},
+                {"key": "brandId", "value": "1"}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:8080"}
+  ]
+}

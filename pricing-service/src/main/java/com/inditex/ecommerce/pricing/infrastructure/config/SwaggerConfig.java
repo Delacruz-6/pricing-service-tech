@@ -3,7 +3,6 @@ package com.inditex.ecommerce.pricing.infrastructure.config;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,21 +23,15 @@ public class SwaggerConfig {
     private String serverUrl;
 
     @Bean
-    GroupedOpenApi publicApi() {
-        return GroupedOpenApi.builder()
-                .group("pricing-api")
-                .packagesToScan("com.inditex.ecommerce.pricing.infrastructure.in.rest.controller")
-                .pathsToExclude("/actuator/**")
-                .build();
-    }
-
-    @Bean
     OpenAPI customOpenAPI() {
         return new OpenAPI()
             .addServersItem(new Server().url(serverUrl))
             .info(new Info()
                 .title(name.toUpperCase())
                 .version(version)
-                .description(description));
+                .description(description + """
+
+                        Coleccion API (casos exitosos y de error):
+                        /pricing-service-tech-collection.json"""));
     }
 }
